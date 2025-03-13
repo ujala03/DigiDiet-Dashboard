@@ -55,3 +55,47 @@ const nutritionChart = new Chart(ctx, {
         }
     }
 });
+
+
+// Fetch nutritional data and update cards and chart
+async function fetchNutritionalData() {
+    try {
+        const response = await fetch('/api/nutrition');
+        const data = await response.json();
+
+        document.getElementById('caloriesValue').innerText = data.calories;
+        document.getElementById('proteinValue').innerText = data.protein;
+        document.getElementById('fatsValue').innerText = data.fats;
+        document.getElementById('fibresValue').innerText = data.fibres;
+        document.getElementById('carbsValue').innerText = data.carbs;
+
+        updateChart(data);
+    } catch (error) {
+        console.error('Failed to fetch data:', error);
+    }
+}
+
+// Chart.js update function
+function updateChart(data) {
+    const ctx = document.getElementById('nutritionChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Calories', 'Protein', 'Fats', 'Fibres', 'Carbs'],
+            datasets: [{
+                label: 'Nutritional Intake',
+                data: [data.calories, data.protein, data.fats, data.fibres, data.carbs],
+                backgroundColor: ['red', 'blue', 'yellow', 'green', 'orange']
+            }]
+        }
+    });
+}
+
+// Initial fetch
+fetchNutritionalData();
+fetch('https://api-id.execute-api.us-east-1.amazonaws.com/prod/sendData', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ calories, protein, fats, fibres, carbs })
+});
+
